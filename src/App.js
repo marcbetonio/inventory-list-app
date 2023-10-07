@@ -1,90 +1,62 @@
-import './App.css';
 import { useRef, useEffect, useState } from 'react';
+import './App.css';
 
 function App() {
-
-  //const todoFromLocalStorage = JSON.parse(localStorage.getItem('item') || [])
-
-  const[items, setItems] = useState([])
-  const[newItem, setNewItem] = useState()
-  const[newQuantity, setNewQuantity] = useState()
+  const [items, setItems] = useState(JSON.parse(window.localStorage.getItem("items")) || []);
   const[currentIndex, setCurrentIndex] = useState(-1)
-
-  //Refs
-
-  let itemName = useRef();
-  let itemQuantity = useRef();
-
-  //useEffect(() => {
-  //  localStorage.setItem("item", JSON.stringify(items))
-  //}, [items])
-
-  useEffect(() => {
-    itemName.current.focus();
-  }, [])
-
-  function handleItemChange(event){
-    setNewItem(event.target.value)
-  }
-
-  function handleQuantityChange(event){
-    setNewQuantity(event.target.value)
-  }
-
-  function handleSubmit(event){
+  
+    let itemName = useRef();
+    let itemQuantity = useRef();
+    
+  function handleSubmit(event) {
     event.preventDefault();
+    const updateItem = [...items]
+    
     if(currentIndex >= 0){
-      const updateItem=[...items]
-      updateItem[currentIndex] = { item: newItem, quantity: newQuantity }
+      updateItem[currentIndex] = { item: event.target.itemName.value, quantity: event.target.itemQuantity.value }
       setItems(updateItem)
       setCurrentIndex(-1)
-    }else{if(itemName.current.value === "" || itemQuantity.current.value === ""){
-      window.alert("Add item name and quantity")
-    }else{
-      setItems([...items, {item: newItem, quantity: newQuantity}])
-    }
-  }  
-    setNewItem("")
-    setNewQuantity("")
+    } else {
+      setItems([...updateItem, {item: event.target.itemName.value, quantity: event.target.itemQuantity.value}])
+    }  
   }
-
+  
   function handleDelete(index){
     window.confirm("Do you want to delete?") &&
-    setItems(items.filter((item, i) => i !== index))
+    setItems(items.filter((_, i) => i !== index))
   }
 
   function handleEdit(index){
     setCurrentIndex(index)
-    const{item, quantity} = items[index]
-    setNewItem(item)
-    setNewQuantity(quantity)
+    itemName.current.value = items[index].item
+    itemQuantity.current.value = items[index].quantity
   }
+  
+  useEffect(() => {
+    itemName.current.focus();
+  }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem("items", JSON.stringify(items))
+  })
 
   return (
     <div className="container">
       <h1>Inventory List</h1>
       <form style={{justifyContent:'center'}} onSubmit={handleSubmit}>
-        <div>
           <input placeholder='Item Name' 
           style={{border: '1px solid #7633fg'}} 
           ref={itemName}
-          value={newItem}
-          onChange={handleItemChange} />
-
+           required name="itemName" />
           <input placeholder='Item Quantity' 
           style={{border: '1px solid #7633fg'}} 
           ref={itemQuantity}
-          value={newQuantity}
-          onChange={handleQuantityChange} />
-
-            <button placeholder='Save' type='Submit'>
-              {currentIndex >= 0 ? "Save" : "Add"}
-            </button>
-        </div>
+          required name="itemQuantity" />
+          <button placeholder='Save' type='Submit'>
+            {currentIndex >= 0 ? "Save" : "Add"}
+          </button>
       </form>
-
       <ul style={{width:420}}>
-
         {items.map((item, index) => (
           <li key={index} 
 
@@ -99,7 +71,6 @@ function App() {
                 onClick={() => handleDelete(index)}>Delete</button>
                 
               </div>
-              
           </li>))}
       </ul>
 

@@ -1,0 +1,6 @@
+{
+  "proseWrap": "always",
+  "singleAttributePerLine": true,
+  "singleQuote": true,
+  "trailingComma": "es5"
+}
